@@ -37,10 +37,22 @@
     <!-- <div id="overlay">This is an overlay example.</div>  Uncomment if you want to see an overlay text --> 
     <div id="blocker">
       <div id="instructions">
-        <span style="font-size:30px">Click to move about</span>
+        <span style="font-size:30px">Click to move around the room!</span>
         <br /><br />
+        Show Controls: ESC<br/>
         Move: WASD<br/>
-        Look: MOUSE
+        Move Faster: LEFT SHIFT (HOLD)<br/>
+        Look: MOUSE<br/>
+        Reset Position: R<br/>
+        Toggle Camera Flashlight On/Off: 0<br/>
+        Toggle Red Light On/Off: 1<br/>
+        Toggle Green Light On/Off: 2<br/>
+        Toggle Blue Light On/Off: 3<br/>
+        Toggle Desk Lamp On/Off: 4<br/>
+        Toggle Copper Ball Rolling Animation On/Off: J<br/>
+        Toggle Silver Ball Rolling Animation On/Off: K<br/>
+        Toggle Dice Animation: L (Can't press again until animation ends)<br/>
+
       </div>
     </div>
     
@@ -52,13 +64,13 @@
 
       let camera, scene, renderer; // The main three components
       let controls; // Controller for navigation
-      let ballMesh;
-      let snowman; // Object meshes
+      let ballMesh, copperBall, silverBall, die1, die2; // Object meshes (simpler)
+      let snowman, desk, lamp; // Object meshes (Multiple parts)
       let dz = 0.01; // How much more the snowman is tilting each iteration
       let floorMesh, ceilingMesh, northWallMesh, southWallMesh, eastWallMesh, westWallMesh; // Meshes for constructing the room
       const FLOOR_WIDTH = 120; // The dimensions of the floor
       const FLOOR_DEPTH = 120;
-      const LIGHT_HEIGHT = 60;
+      const LIGHT_HEIGHT = 60; // Height for RGB lights
 
       // Movement variables
       let moveForward = false;
@@ -86,9 +98,6 @@
           // Create and set up the Scene
           scene = new THREE.Scene();
 
-          // A simple snowman
-          createSnowman(scene);
-
           // Create the room
           createRoom(scene);
           
@@ -96,7 +105,13 @@
           setupRedLighting(scene);
           setupGreenLighting(scene);
           setupBlueLighting(scene);
+          setupDeskLighting(scene);
+          setupCameraLighting(scene);
 
+          // Draw the objects
+        //   createSnowman(scene);
+          createDesk(scene);
+          
           // Set up the navigation controls
           setupNavigation(scene);
           
@@ -131,6 +146,24 @@
             case 'KeyD':
             moveRight = true;
             break;
+
+            case 'ShiftLeft':
+            moveSpeed = 60; // Holding shift increases movement speed
+            break;
+
+            // DEBUG
+            case 'NumpadAdd':
+            camera.position.y += 2;
+            break;
+
+            // DEBUG
+            case 'NumpadSubtract':
+            camera.position.y -= 2;
+            break;
+
+            case 'KeyR':
+            camera.position.set(0, 30, 55);
+            break;
             }
         };
 
@@ -150,7 +183,11 @@
                     
             case 'KeyD':
             moveRight = false;
-            break;  
+            break;
+            
+            case 'ShiftLeft':
+            moveSpeed = 30;
+            break;
             }
 	  };
 
@@ -184,7 +221,7 @@
       function setupRedLighting(parent) {
           var x = -25;
           var z = -20;
-              var lightColor = 0xFF3333
+              var lightColor = 0xFF3333;
               var light = new THREE.PointLight( lightColor, 1, 100 );
               light.position.set(x, LIGHT_HEIGHT, z);
               parent.add(light);
@@ -207,7 +244,7 @@
       function setupGreenLighting(parent) {
           var x = 0;
           var z = 20;
-              var lightColor = 0x1CF51C
+              var lightColor = 0x1CF51C;
               var light = new THREE.PointLight( lightColor, 1, 100 );
               light.position.set(x, LIGHT_HEIGHT, z);
               parent.add(light);
@@ -229,7 +266,7 @@
       function setupBlueLighting(parent) {
           var x = 25;
           var z = -20;
-              var lightColor = 0x1D4BF6
+              var lightColor = 0x1D4BF6;
               var light = new THREE.PointLight( lightColor, 1, 100 );
               light.position.set(x, LIGHT_HEIGHT, z);
               parent.add(light);
@@ -245,6 +282,50 @@
               } );
               var lightMesh = new THREE.Mesh( geometry, mat );
               lightMesh.position.set(x, LIGHT_HEIGHT, z);
+              parent.add(lightMesh);
+      }
+
+      function setupDeskLighting(parent) {
+          var x = 0;
+          var y = 20;
+          var z = 0;
+              var lightColor = 0xcccc99;
+              var light = new THREE.PointLight( lightColor, 1, 100 );
+              light.position.set(x, y, z);
+              parent.add(light);
+              parent.add( new THREE.AmbientLight(0x111100) );
+              
+              // Draw a sphere to represent the light source
+              const geometry = new THREE.SphereGeometry(0.6, 10, 10); // Create the Sphere Geometry
+              const mat = new THREE.MeshPhongMaterial( {
+                  color: 0x0000FF,          // reflectivity for diffuse and ambient light
+                  emissive: lightColor,     // emission color; a very small amount of red (in case my lighting is not working really)
+                  specular: 0x000000,       // reflectivity for specular light
+                  shininess: 1              // controls size of specular highlights
+              } );
+              var lightMesh = new THREE.Mesh( geometry, mat );
+              lightMesh.position.set(x, y, z);
+              parent.add(lightMesh);
+      }
+
+      function setupCameraLighting(parent) {
+            //   var lightColor = 0xcccc99;
+              var lightColor = 0xFFFFFF;
+              var light = new THREE.PointLight( lightColor, 1, 100 );
+              light.position.set( camera.position ); // Flashlight follows the camera's position
+              parent.add(light);
+              parent.add( new THREE.AmbientLight(0x111100) );
+              
+              // Draw a sphere to represent the light source
+              const geometry = new THREE.SphereGeometry(0.6, 10, 10); // Create the Sphere Geometry
+              const mat = new THREE.MeshPhongMaterial( {
+                  color: 0xFFFFFF,          // reflectivity for diffuse and ambient light
+                  emissive: lightColor,     // emission color; a very small amount of red (in case my lighting is not working really)
+                  specular: 0x000000,       // reflectivity for specular light
+                  shininess: 1              // controls size of specular highlights
+              } );
+              var lightMesh = new THREE.Mesh( geometry, mat );
+              lightMesh.position.set(camera.position); // Ball follows camera
               parent.add(lightMesh);
       }
 
@@ -323,6 +404,59 @@
           parent.add(eastWallMesh);
           parent.add(westWallMesh);
       }
+
+      function createDesk(parent) {
+          // Load textures
+          const woodTexture = new THREE.TextureLoader().load('textures/wood.png'); // Wood
+
+          const matWood = new THREE.MeshPhongMaterial( {
+              color: 0x808080,     // reflectivity for diffuse and ambient light
+              emissive: 0x010101,  // emission color; a very small amount of red (in case my lighting is not working really)
+              specular: 0x101010,  // reflectivity for ßspecular light
+              shininess: 40,      // controls size of specular highlights
+              map: woodTexture
+          } );
+
+           // Create the geometries
+          const boxGeometry = new THREE.BoxGeometry(40, 2, 25); // For table top
+          const cylinderGeometry = new THREE.CylinderGeometry( 2, 1, 12, 4 ); // For table leg
+
+          // Creating and setting up meshes
+          // Table Top
+          const tableTop = new THREE.Mesh(boxGeometry, matWood);
+          tableTop.position.y = 13;
+
+          // Table Leg (NE)
+          const tableLeg1 = new THREE.Mesh(cylinderGeometry, matWood);
+          tableLeg1.position.x = 15;
+          tableLeg1.position.y = 6;
+          tableLeg1.position.z = -8;
+          
+          // Table Leg (SE)
+          const tableLeg2 = new THREE.Mesh(cylinderGeometry, matWood);
+          tableLeg2.position.x = 15;
+          tableLeg2.position.y = 6;
+          tableLeg2.position.z = 7;
+          
+          // Table Leg (SW)
+          const tableLeg3 = new THREE.Mesh(cylinderGeometry, matWood);
+          tableLeg3.position.x = -15;
+          tableLeg3.position.y = 6;
+          tableLeg3.position.z = 7;
+          
+          // Table Leg (NW)
+          const tableLeg4 = new THREE.Mesh(cylinderGeometry, matWood);
+          tableLeg4.position.x = -15;
+          tableLeg4.position.y = 6;
+          tableLeg4.position.z = -8;
+
+          // Adding meshes to parent
+          parent.add(tableTop);
+          parent.add(tableLeg1);
+          parent.add(tableLeg2);
+          parent.add(tableLeg3);
+          parent.add(tableLeg4);
+      }
       
       function createSnowman(parent) {
           // The holder for our snowman object
@@ -394,14 +528,14 @@
           if (controls.isLocked) adjustMovement(delta);
                     
           // Rotate the mesh object in the x and y and z directions a bit.
-	  snowman.rotation.z += dz;
-          if (snowman.rotation.z < -0.5) {
-              snowman.rotation.z = -0.5;
-              dz = -dz;
-          } else if (snowman.rotation.z > 0.5) {
-              snowman.rotation.z = 0.5;
-              dz = -dz;
-          }
+	//   snowman.rotation.z += dz;
+    //       if (snowman.rotation.z < -0.5) {
+    //           snowman.rotation.z = -0.5;
+    //           dz = -dz;
+    //       } else if (snowman.rotation.z > 0.5) {
+    //           snowman.rotation.z = 0.5;
+    //           dz = -dz;
+    //       }
 
           // And now render the scene using the camera
           //    The renderer does all the set up and calling
