@@ -103,6 +103,8 @@
       // Camera Bounds (Since room is square, only need one min and one max)
       let BOUND_MIN = -58;
       let BOUND_MAX = 58;
+        
+      let diceRoll = false;
       
       init();
       animate();
@@ -248,6 +250,9 @@
                 redIntensity = 0;
             }
             break;
+            
+            case'KeyL':
+            diceRoll = !diceRoll;
 
             }
 	  };
@@ -738,43 +743,44 @@
           //Bottom
           die1.add(face1)
           face1.rotation.x = Math.PI/2;
-          face1.position.x = 15;
-          face1.position.y = 14.1;
-          face1.position.z = 2;
+          face1.position.x = 0;
+          face1.position.y = -.75;
+          face1.position.z = 0;
 
           // Top
           die1.add(face2)
           face2.rotation.x = Math.PI/2;
-          face2.position.x = 15;
-          face2.position.y = 15.6;
-          face2.position.z = 2;
+          face2.position.x = 0;
+          face2.position.y = .75;
+          face2.position.z = 0;
 
           // West Face
           die1.add(face3)
           face3.rotation.y = Math.PI/2;
-          face3.position.x = 14.25;
-          face3.position.y = 14.85;
-          face3.position.z = 2;
+          face3.position.x = -.75;
+          face3.position.y = 0;
+          face3.position.z = 0;
 
           // East Face
           die1.add(face4)
           face4.rotation.y = Math.PI/2;
-          face4.position.x = 15.75;
-          face4.position.y = 14.85;
-          face4.position.z = 2;
+          face4.position.x = .75;
+          face4.position.y = 0;
+          face4.position.z = 0;
 
           // North Face
           die1.add(face5)
-          face5.position.x = 15;
-          face5.position.y = 14.85;
-          face5.position.z = 1.25;
+          face5.position.x = 0;
+          face5.position.y = 0;
+          face5.position.z = .75;
 
           // South Face
           die1.add(face6)
-          face6.position.x = 15;
-          face6.position.y = 14.85;
-          face6.position.z = 2.75;
+          face6.position.x = 0;
+          face6.position.y = 0;
+          face6.position.z = -.75;
 
+          die1.position.set(15, 15, 2);
           parent.add(die1);
       }
 
@@ -853,43 +859,44 @@
           //Bottom
           die2.add(face1)
           face1.rotation.x = Math.PI/2;
-          face1.position.x = 15;
-          face1.position.y = 14.1;
-          face1.position.z = 2;
+          face1.position.x = 0;
+          face1.position.y = -.75;
+          face1.position.z = 0;
 
           // Top
           die2.add(face2)
           face2.rotation.x = Math.PI/2;
-          face2.position.x = 15;
-          face2.position.y = 15.6;
-          face2.position.z = 2;
+          face2.position.x = 0;
+          face2.position.y = .75;
+          face2.position.z = 0;
 
           // West Face
           die2.add(face3)
           face3.rotation.y = Math.PI/2;
-          face3.position.x = 14.25;
-          face3.position.y = 14.85;
-          face3.position.z = 2;
+          face3.position.x = -.75;
+          face3.position.y = 0;
+          face3.position.z = 0;
 
           // East Face
           die2.add(face4)
           face4.rotation.y = Math.PI/2;
-          face4.position.x = 15.75;
-          face4.position.y = 14.85;
-          face4.position.z = 2;
+          face4.position.x = .75;
+          face4.position.y = 0;
+          face4.position.z = 0;
 
           // North Face
           die2.add(face5)
-          face5.position.x = 15;
-          face5.position.y = 14.85;
-          face5.position.z = 1.25;
+          face5.position.x = 0;
+          face5.position.y = 0;
+          face5.position.z = .75;
 
           // South Face
           die2.add(face6)
-          face6.position.x = 15;
-          face6.position.y = 14.85;
-          face6.position.z = 2.75;
+          face6.position.x = 0;
+          face6.position.y = 0;
+          face6.position.z = -.75;
 
+          die2.position.set(14, 15, 2);
           parent.add(die2);
       }
 
@@ -937,7 +944,16 @@
 
           // Adjust movement (assuming we have locked the mouse pointer to the document)
           if (controls.isLocked) adjustMovement(delta);
-                    
+         
+        if (diceRoll){
+            die1.rotation.x -= 0.1;
+            die1.rotation.y -= 0.1;
+            die1.rotation.z -= 0.1;
+            die2.rotation.x -= 0.1;
+            die2.rotation.y -= 0.1;
+            die2.rotation.z -= 0.1;
+        }  
+
           // Rotate the mesh object in the x and y and z directions a bit.
 	//   snowman.rotation.z += dz;
     //       if (snowman.rotation.z < -0.5) {
