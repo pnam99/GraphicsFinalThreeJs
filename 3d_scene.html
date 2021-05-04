@@ -103,6 +103,19 @@
       // Camera Bounds (Since room is square, only need one min and one max)
       let BOUND_MIN = -58;
       let BOUND_MAX = 58;
+
+      // Animation flags
+      let animateCopperBall = false;
+      let animateSilverBall = false;
+      let animateDice = false;
+
+      // Animation movement
+      let diceAngle = 0         // Dice rotation (about y-axis). Never resets.
+      let diceAngleD = 10       // Amount the dice rotates per frame
+      let diceAngleTotal = 0    // Keeps track of total rotation amount on the dice. Will reset at end of animation
+      let diceAngleLimit = 1000 // How much the dice can rotate at a time before the dice animation stops.
+      let copperBallAngleD = 0.04  // Amount the copper ball rotates per frame
+      let silverBallAngleD = 0.08  // Amount the silver ball rotates per frame
       
       init();
       animate();
@@ -129,7 +142,11 @@
         //   createSnowman(scene);
           createDesk(scene);
           createCopperBall(scene);
+          copperBall.position.x -= 12;
+          copperBall.position.z -= 5;
           createSilverBall(scene);
+          silverBall.position.x -= 6;
+          silverBall.position.z += 7;
           createLamp(scene);
           createDie1(scene);
           createDie2(scene);
@@ -186,10 +203,6 @@
             camera.position.y -= 1;
             break;
 
-            case 'KeyR':
-            camera.position.set(0, 30, 55);
-            break;
-
             case 'Digit1':
             if (is_red_light == true) {
                 is_red_light = false;
@@ -200,20 +213,18 @@
             }
         };
 
+        // Press
          const onKeyPress = function (event) {
             switch ( event.code ) {
             case 'Digit0':
             case 'Numpad0':
-            console.log("Key pressed");
             if (is_red_light == true) {
                 is_red_light = false;
                 redIntensity = 0;
-                console.log("Red light is false");
             }
             else if (is_red_light == false) {
                 is_red_light = true;
                 redIntensity = 1;
-                console.log("Red light is true");
             }
             break;
 
@@ -247,6 +258,18 @@
                 is_red_light = false;
                 redIntensity = 0;
             }
+            break;
+
+            case 'KeyR':
+            camera.position.set(0, 30, 55);
+            break;
+
+            case 'KeyJ':
+            animateCopperBall = !animateCopperBall;
+            break;
+
+            case 'KeyK':
+            animateSilverBall = !animateSilverBall;
             break;
 
             }
@@ -308,7 +331,7 @@
           var x = -25;
           var z = -20;
               var lightColor = 0xFF3333;
-              var light = new THREE.PointLight( lightColor, redIntensity, 100 );
+              var light = new THREE.PointLight( lightColor, 1*redIntensity, 100 );
               light.position.set(x, LIGHT_HEIGHT, z);
               parent.add(light);
             //   parent.add( new THREE.AmbientLight(0x111100) );
@@ -556,6 +579,7 @@
       }
       
       function createCopperBall(parent) {
+          copperBall = new THREE.Object3D();
           // Create the Sphere Geometry
           const geometry = new THREE.SphereGeometry(0.7, 20, 20);
 
@@ -568,14 +592,17 @@
           } );
           
           // Set up the mesh and add it to the scene
-          copperBall = new THREE.Mesh( geometry, mat );
-          copperBall.position.x = -10;
-          copperBall.position.y = 14.7;
-          copperBall.position.z = -6;
+          const ball = new THREE.Mesh( geometry, mat );
+          ball.position.x = -1.8;
+          ball.position.y = 14.7;
+          ball.position.z = -1;
+          
+          copperBall.add(ball);
           parent.add(copperBall);
       }
 
       function createSilverBall(parent) {
+          silverBall = new THREE.Object3D();
           // Create the Sphere Geometry
           const geometry = new THREE.SphereGeometry(0.7, 20, 20);
 
@@ -588,10 +615,12 @@
           } );
           
           // Set up the mesh and add it to the scene
-          silverBall = new THREE.Mesh( geometry, mat );
-          silverBall.position.x = -10;
-          silverBall.position.y = 14.7;
-          silverBall.position.z = 6;
+          const ball = new THREE.Mesh( geometry, mat );
+          ball.position.x = -2.4;
+          ball.position.y = 14.7;
+          ball.position.z = 1;
+
+          silverBall.add(ball);
           parent.add(silverBall);
       }
 
@@ -937,17 +966,15 @@
 
           // Adjust movement (assuming we have locked the mouse pointer to the document)
           if (controls.isLocked) adjustMovement(delta);
-                    
-          // Rotate the mesh object in the x and y and z directions a bit.
-	//   snowman.rotation.z += dz;
-    //       if (snowman.rotation.z < -0.5) {
-    //           snowman.rotation.z = -0.5;
-    //           dz = -dz;
-    //       } else if (snowman.rotation.z > 0.5) {
-    //           snowman.rotation.z = 0.5;
-    //           dz = -dz;
-    //       }
 
+          if (animateCopperBall == true) {
+              copperBall.rotation.y += copperBallAngleD;
+          }
+
+          if (animateSilverBall == true) {
+              silverBall.rotation.y += silverBallAngleD;
+          }
+        
           // And now render the scene using the camera
           //    The renderer does all the set up and calling
 	  renderer.render(scene, camera);
