@@ -87,11 +87,14 @@
       var redLightShine=0;
       var blueLightShine=0;
       var greenLightShine=0;
+      var lampLightShine=0;
 
       //Light Meshes
       var redLightMesh=0;
       var blueLightMesh=0;
       var greenLightMesh=0;
+    
+
 
       // Flags for lighting effect (on/off)
       let is_red_light = true;
@@ -256,6 +259,22 @@
                 blueLightShine.intensity=1;
                 blueLightMesh.visible=true;
                 console.log("blue light is true");
+            }
+            break;
+
+
+            case 'Digit4':
+            case 'Numpad4':
+            console.log("Key pressed");
+            if (is_lamp_light == true) {
+                is_lamp_light = false;
+                lampLightShine.intensity=0;
+                console.log("lamp light is false");
+            }
+            else if (is_lamp_light == false) {
+                is_lamp_light = true;
+                lampLightShine.intensity=1;
+                console.log("lamp light is true");
             }
             break;
 
@@ -625,9 +644,9 @@
               } );
 
               // Create Lamp Light Source
-              var light = new THREE.PointLight( lightColor, lampIntensity, 100 );
-              light.position.set(2, 20.5, -1);
-              lamp.add(light);
+              lampLightShine = new THREE.PointLight( lightColor, lampIntensity, 100 );
+              lampLightShine.position.set(2, 20.5, -1);
+              lamp.add(lampLightShine);
               lamp.add( new THREE.AmbientLight(0x111100) );
 
            // Create the geometries
