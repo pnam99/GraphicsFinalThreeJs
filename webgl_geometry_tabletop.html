@@ -25,46 +25,29 @@
 
       function init() {
         // Create and set up the camera (Smaller (shallow) angle = zoomed in, Larger = zoomed out)
-        camera = new THREE.PerspectiveCamera(
-          70,
-          window.innerWidth / window.innerHeight,
-          1,
-          1000
-        );
+        camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 1000);
         camera.position.z = 400; // Decent distance away from box
         // camera.position.z = 800; // Box is twice as far away (compared to 400)
 
         // Create and set up the Scene
         scene = new THREE.Scene(); // We will add to the scene as we create more objects
 
-        const loadBrickTexture = new THREE.TextureLoader().load(
-          "textures/brickWall.jpg"
-        );
-        const loadWoodTexture = new THREE.TextureLoader().load(
-          "textures/wood.png"
-        );
+        const loadBrickTexture = new THREE.TextureLoader().load("textures/brickWall.jpg");
+        const loadWoodTexture = new THREE.TextureLoader().load("textures/wood.png");
         // const loadDie1Texture = new THREE.TextureLoader().load("textures/die-0.png");
-        const loadDie1Texture = new THREE.TextureLoader().load(
-          "textures/face1.jpg"
-        );
+        const loadDie1Texture = new THREE.TextureLoader().load("textures/face1.jpg");
         const cube = new THREE.BoxGeometry(200, 200, 200); // Cube box shape
         const tabletop = new THREE.BoxGeometry(300, 20, 100);
-        const brickMaterial = new THREE.MeshBasicMaterial({
-          map: loadBrickTexture,
-        });
-        const woodMaterial = new THREE.MeshBasicMaterial({
-          map: loadWoodTexture,
-        });
-        const die1Material = new THREE.MeshBasicMaterial({
-          map: loadDie1Texture,
-        });
+        const brickMaterial = new THREE.MeshBasicMaterial({ map: loadBrickTexture });
+        const woodMaterial = new THREE.MeshBasicMaterial({ map: loadWoodTexture });
+        const die1Material = new THREE.MeshBasicMaterial({ map: loadDie1Texture });
 
         mesh = new THREE.Mesh(cube, brickMaterial); // Give it the shape and the material
         // mesh = new THREE.Mesh(geometry); // Only a white cube is displayed since material wasn't given
         mesh2 = new THREE.Mesh(tabletop, woodMaterial); // Give it the table geometry and wood material
         mesh2.position.y += 180; // Translate the object up
         mesh3 = new THREE.Mesh(cube, die1Material); // Die object
-        // mesh3.scale.set(0.5, 0.5, 0.5); // Scale xyz values
+        mesh3.scale.set(0.5, 0.5, 0.5); // Scale xyz values
         // mesh3.scale.x = 0.3; // Scale only x value
         mesh3.position.y -= 200;
 
