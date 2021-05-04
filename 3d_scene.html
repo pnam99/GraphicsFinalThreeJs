@@ -129,6 +129,19 @@
         let BOUND_MIN = -58;
         let BOUND_MAX = 58;
 
+        // Animation flags
+        let animateCopperBall = false;
+        let animateSilverBall = false;
+        let animateDice = false;
+
+        // Animation movement
+        let diceAngle = 0         // Dice rotation (about y-axis). Never resets.
+        let diceAngleD = 10       // Amount the dice rotates per frame
+        let diceAngleTotal = 0    // Keeps track of total rotation amount on the dice. Will reset at end of animation
+        let diceAngleLimit = 1000 // How much the dice can rotate at a time before the dice animation stops.
+        let copperBallAngleD = 0.04  // Amount the copper ball rotates per frame
+        let silverBallAngleD = 0.08  // Amount the silver ball rotates per frame
+
         let diceRoll = false;
 
         init();
@@ -157,7 +170,11 @@
             //   createSnowman(scene);
             createDesk(scene);
             createCopperBall(scene);
+            copperBall.position.x -= 12;
+            copperBall.position.z -= 5;
             createSilverBall(scene);
+            silverBall.position.x -= 6;
+            silverBall.position.z += 7;
             createLamp(scene);
             createDie1(scene);
             createDie2(scene);
@@ -311,6 +328,18 @@
 
                     case 'KeyL':
                         diceRoll = !diceRoll;
+
+                    case 'KeyR':
+                        camera.position.set(0, 30, 55);
+                        break;
+
+                    case 'KeyJ':
+                        animateCopperBall = !animateCopperBall;
+                        break;
+
+                    case 'KeyK':
+                        animateSilverBall = !animateSilverBall;
+                        break;
 
 
                 }
@@ -608,6 +637,7 @@
 
         function createCopperBall(parent) {
             // Create the Sphere Geometry
+            copperBall = new THREE.Object3D();
             const geometry = new THREE.SphereGeometry(0.7, 20, 20);
 
             // Set the material property for the ball
@@ -619,15 +649,18 @@
             });
 
             // Set up the mesh and add it to the scene
-            copperBall = new THREE.Mesh(geometry, mat);
-            copperBall.position.x = -10;
-            copperBall.position.y = 14.7;
-            copperBall.position.z = -6;
+            const ball = new THREE.Mesh(geometry, mat);
+            ball.position.x = -1.8;
+            ball.position.y = 14.7;
+            ball.position.z = -1;
+
+            copperBall.add(ball);
             parent.add(copperBall);
         }
 
         function createSilverBall(parent) {
             // Create the Sphere Geometry
+            silverBall = new THREE.Object3D();
             const geometry = new THREE.SphereGeometry(0.7, 20, 20);
 
             // Set the material property for the ball
@@ -639,10 +672,12 @@
             });
 
             // Set up the mesh and add it to the scene
-            silverBall = new THREE.Mesh(geometry, mat);
-            silverBall.position.x = -10;
-            silverBall.position.y = 14.7;
-            silverBall.position.z = 6;
+            const ball = new THREE.Mesh(geometry, mat);
+            ball.position.x = -2.4;
+            ball.position.y = 14.7;
+            ball.position.z = 1;
+
+            silverBall.add(ball);
             parent.add(silverBall);
         }
 
@@ -999,6 +1034,14 @@
                 die2.rotation.y -= 0.1;
                 die2.rotation.z -= 0.1;
             }
+
+            if (animateCopperBall == true) {
+              copperBall.rotation.y += copperBallAngleD;
+          }
+
+          if (animateSilverBall == true) {
+              silverBall.rotation.y += silverBallAngleD;
+          }
 
             // Rotate the mesh object in the x and y and z directions a bit.
             //   snowman.rotation.z += dz;
