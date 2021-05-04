@@ -7,15 +7,15 @@ Create Objects:
 X Floor (Textured)
 X 4 Walls, 1 Ceiling (All Colored/Textured)
 X Textured Table (Top + 4 Legs)
-- Desk Lamp
-- Copper Ball
-- Polished Silver Ball
+X Desk Lamp
+X Copper Ball
+X Polished Silver Ball
 - Pair of Dice (with texture-mapped dots)
 - Textured picture on the wall (when lights are off)
 
 Create Light Sources:
 X 3 Overhead Lights (1 Red, 1 Green, 1 Blue) on the ceiling (Draw a colored ball to represent the light source position/color)
-- Desk Lamp Light (Dim white light, about 75% intensity)
+X Desk Lamp Light (Dim white light, about 75% intensity)
 - Bright (white) spotlight/flashlight from the camera's view (30 degrees)
 
 Navigation (Functionality):
