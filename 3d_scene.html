@@ -62,7 +62,7 @@
             Toggle Desk Lamp On/Off: 4<br />
             Toggle Copper Ball Rolling Animation On/Off: J<br />
             Toggle Silver Ball Rolling Animation On/Off: K<br />
-            Toggle Dice Animation: L (Can't press again until animation ends)<br /><br /><br />
+            Toggle Dice Animation: L (Wait until animation ends to toggle again)<br /><br /><br />
             AUTHORS:<br />
             Phillip Nam, Kevin Sangurima, Ryan Clark, James Jacobson, Neel Bains<br />
             Spring 2021<br />
@@ -80,8 +80,7 @@
         let camera, scene, renderer; // The main three components
         let controls; // Controller for navigation
         let copperBall, silverBall, die1, die2; // Object meshes (simpler)
-        let snowman, desk, lamp, wallPicture; // Object meshes (Multiple parts)
-        let dz = 0.01; // How much more the snowman is tilting each iteration
+        let desk, lamp, wallPicture; // Object meshes (Multiple parts)
         let floorMesh, ceilingMesh, northWallMesh, southWallMesh, eastWallMesh, westWallMesh; // Meshes for constructing the room
         const FLOOR_WIDTH = 120; // The dimensions of the floor
         const FLOOR_DEPTH = 120;
@@ -106,14 +105,13 @@
         var blueLightMesh = 0;
         var greenLightMesh = 0;
 
-
-
         // Flags for lighting effect (on/off)
         let is_red_light = true;
         let is_green_light = true;
         let is_blue_light = true;
         let is_lamp_light = true;
         let is_camera_light = true;
+        let is_wall_picture = false;
 
         // Movement variables
         let moveForward = false;
@@ -136,13 +134,12 @@
 
         // Animation movement
         let diceAngle = 0         // Dice rotation (about y-axis). Never resets.
-        let diceAngleD = 10       // Amount the dice rotates per frame
+        let diceAngleD = 0.1;       // Amount the dice rotates per frame
         let diceAngleTotal = 0    // Keeps track of total rotation amount on the dice. Will reset at end of animation
-        let diceAngleLimit = 1000 // How much the dice can rotate at a time before the dice animation stops.
+        let diceAngleLimit = 20 // How much the dice can rotate at a time before the dice animation stops.
         let copperBallAngleD = 0.04  // Amount the copper ball rotates per frame
         let silverBallAngleD = 0.08  // Amount the silver ball rotates per frame
 
-        let diceRoll = false;
 
         init();
         animate();
@@ -167,7 +164,6 @@
             setupCameraLighting(scene);
 
             // Draw the objects
-            //   createSnowman(scene);
             createDesk(scene);
             createCopperBall(scene);
             copperBall.position.x -= 12;
@@ -181,6 +177,7 @@
             die2.position.x -= 4;
             die2.position.z += 5;
             createWallPicture(scene);
+            // wallPictureCheck();
 
             // Set up the navigation controls
             setupNavigation(scene);
@@ -221,20 +218,6 @@
                         moveSpeed = 60; // Holding shift increases movement speed
                         break;
 
-                    // DEBUG
-                    case 'NumpadAdd':
-                        camera.position.y += 1;
-                        break;
-
-                    // DEBUG
-                    case 'NumpadSubtract':
-                        camera.position.y -= 1;
-                        break;
-
-                    case 'KeyR':
-                        camera.position.set(0, 30, 55);
-                        break;
-
 
                 }
             };
@@ -244,90 +227,83 @@
 
                     case 'Digit0':
                     case 'Numpad0':
-                        console.log("Key pressed");
                         if (is_camera_light == true) {
                             is_camera_light = false;
                             cameraLightShine.intensity = 0;
                             console.log(camera.getWorldDirection())
-                            console.log("camera light is false");
                         }
                         else if (is_camera_light == false) {
                             is_camera_light = true;
                             cameraLightShine.intensity = 1;
-                            console.log("camera light is true");
                         }
+                        wallPictureCheck();
                         break;
 
                     case 'Digit1':
                     case 'Numpad1':
-                        console.log("Key pressed");
                         if (is_red_light == true) {
                             is_red_light = false;
                             redLightShine.intensity = 0;
                             redLightMesh.visible = false;
-                            console.log("Red light is false");
                         }
                         else if (is_red_light == false) {
                             is_red_light = true;
                             redLightShine.intensity = 1;
                             redLightMesh.visible = true;
-                            console.log("Red light is true");
                         }
+                        wallPictureCheck();
                         break;
 
                     case 'Digit2':
                     case 'Numpad2':
-                        console.log("Key pressed");
                         if (is_green_light == true) {
                             is_green_light = false;
                             greenLightShine.intensity = 0;
                             greenLightMesh.visible = false;
-                            console.log("Green light is false");
                         }
                         else if (is_green_light == false) {
                             is_green_light = true;
                             greenLightShine.intensity = 1;
                             greenLightMesh.visible = true;
-                            console.log("Green light is true");
                         }
+                        wallPictureCheck();
                         break;
 
 
                     case 'Digit3':
                     case 'Numpad3':
-                        console.log("Key pressed");
                         if (is_blue_light == true) {
                             is_blue_light = false;
                             blueLightShine.intensity = 0;
                             blueLightMesh.visible = false;
-                            console.log("blue light is false");
                         }
                         else if (is_blue_light == false) {
                             is_blue_light = true;
                             blueLightShine.intensity = 1;
                             blueLightMesh.visible = true;
-                            console.log("blue light is true");
                         }
+                        wallPictureCheck();
                         break;
 
 
                     case 'Digit4':
                     case 'Numpad4':
-                        console.log("Key pressed");
+                        // console.log("Key pressed");
                         if (is_lamp_light == true) {
                             is_lamp_light = false;
                             lampLightShine.intensity = 0;
-                            console.log("lamp light is false");
+                            // console.log("lamp light is false");
                         }
                         else if (is_lamp_light == false) {
                             is_lamp_light = true;
                             lampLightShine.intensity = 1;
-                            console.log("lamp light is true");
+                            // console.log("lamp light is true");
                         }
+                        wallPictureCheck();
                         break;
 
                     case 'KeyL':
-                        diceRoll = !diceRoll;
+                        animateDice = !animateDice;
                         break;
 
                     case 'KeyR':
@@ -341,7 +317,6 @@
                     case 'KeyK':
                         animateSilverBall = !animateSilverBall;
                         break;
-
 
                 }
             };
@@ -603,37 +578,6 @@
 
             // Adding desk mesh to parent
             parent.add(desk);
-        }
-
-        function createSnowman(parent) {
-            // The holder for our snowman object
-            snowman = new THREE.Object3D();
-
-            // Set the material property for the ball
-            const snowManMat = new THREE.MeshPhongMaterial({
-                color: 0x808080,     // reflectivity for diffuse and ambient light
-                emissive: 0x200000,  // emission color; a very small amount of red (in case my lighting is not working really)
-                specular: 0x828282,  // reflectivity for specular light
-                shininess: 100       // controls size of specular highlights
-            });
-
-            // Create the base of the snowman
-            const baseGeometry = new THREE.SphereGeometry(3, 20, 20);
-            const midGeometry = new THREE.SphereGeometry(2, 20, 20);
-            const headGeometry = new THREE.SphereGeometry(1, 20, 20);
-
-            const baseMesh = new THREE.Mesh(baseGeometry, snowManMat);
-            const midMesh = new THREE.Mesh(midGeometry, snowManMat);
-            const headMesh = new THREE.Mewwsh(headGeometry, snowManMat);
-
-            snowman.add(baseMesh);
-            baseMesh.position.y = 3;
-            snowman.add(midMesh);
-            midMesh.position.y = 8;
-            snowman.add(headMesh);
-            headMesh.position.y = 11;
-
-            parent.add(snowman);
         }
 
         function createCopperBall(parent) {
@@ -1001,11 +945,21 @@
 
             // Set up mesh
             wallPicture = new THREE.Mesh(plane, mat);
-            wallPicture.position.y = 32;
+            wallPicture.position.y = -20; // Hide the picture
             wallPicture.position.z = -59.5;
 
-
             parent.add(wallPicture);
+        }
+
+        function wallPictureCheck() {
+            if(is_red_light == false && is_green_light == false && is_blue_light == false && is_lamp_light == false && is_camera_light == true) {
+                is_wall_picture = true;
+                wallPicture.position.y = 32;
+            }
+            else {
+                is_wall_picture = false;
+                wallPicture.position.y = -20; // Make the picture "disappear" (Go below the scene)
+            }
         }
 
         // On a window resize, recompute the camera's aspect ratio and then update the project matrix based on that.
@@ -1027,13 +981,22 @@
             // Adjust movement (assuming we have locked the mouse pointer to the document)
             if (controls.isLocked) adjustMovement(delta);
 
-            if (diceRoll) {
-                die1.rotation.x -= 0.1;
-                die1.rotation.y -= 0.1;
-                die1.rotation.z -= 0.1;
-                die2.rotation.x -= 0.1;
-                die2.rotation.y -= 0.1;
-                die2.rotation.z -= 0.1;
+            if (animateDice) {
+                if (diceAngleTotal >= diceAngleLimit) {
+                    // When angle rotation limit is met, stop the animation and reset diceAngleTotal
+                    diceAngleTotal = 0 // Reset at the end of animation
+                    animateDice = false // Stops the dice animation from running
+                }
+                else {
+                    // Else, let the dice animate
+                    die1.rotation.x -= diceAngleD;
+                    die1.rotation.y -= diceAngleD;
+                    die1.rotation.z -= diceAngleD;
+                    die2.rotation.x -= diceAngleD;
+                    die2.rotation.y -= diceAngleD;
+                    die2.rotation.z -= diceAngleD;
+                    diceAngleTotal += diceAngleD;
+                }
             }
 
             if (animateCopperBall == true) {
@@ -1043,16 +1006,6 @@
           if (animateSilverBall == true) {
               silverBall.rotation.y += silverBallAngleD;
           }
-
-            // Rotate the mesh object in the x and y and z directions a bit.
-            //   snowman.rotation.z += dz;
-            //       if (snowman.rotation.z < -0.5) {
-            //           snowman.rotation.z = -0.5;
-            //           dz = -dz;
-            //       } else if (snowman.rotation.z > 0.5) {
-            //           snowman.rotation.z = 0.5;
-            //           dz = -dz;
-            //       }
 
             // And now render the scene using the camera
             //    The renderer does all the set up and calling
